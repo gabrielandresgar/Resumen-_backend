@@ -1,7 +1,4 @@
-# DjangoRestFramework  
-
-  ## Todo en consola de comandos (cmd, no ejecutar con gitbash o con powershell)  
-
+# DjangoRestFramework
 
 ## Crea un entorno virtual  
 python -m venv venv  
@@ -25,4 +22,7 @@ python manage.py createsuperuser
 esto creara un superusuario para la ruta de http://127.0.0.1:8000/admin/
 (es una interfaz gráfica donde se pueden agregar datos a la BD directamente, llenar todos los datos que se piden para que se pueda crear, si la contraseña es muy corta y solo esta en entorno local, ignorar la advertencia y decir que quieres continuar de todos modos, en este caso escribir la 'y')
 
+## Todo en consola de comandos (cmd, no ejecutar con gitbash o con powershell)  
 ## El api se encuentra por defecto en la ruta http://127.0.0.1:8000/api/v1/programmers/ al iniciar el servidor, para mas aclaraciones consulta la documentación de la api en http://127.0.0.1:8000/docs/
+
+pipenv install django-cors-headers

@@ -5,6 +5,7 @@ coreapi==2.3.3
 coreschema==0.0.4
 distlib==0.3.7
 Django==4.2.7
+django-cors-headers==4.3.1
 djangorestframework==3.14.0
 filelock==3.13.1
 idna==3.4
@@ -15,7 +16,6 @@ pipenv==2023.11.15
 platformdirs==4.0.0
 pytz==2023.3.post1
 requests==2.31.0
-setuptools==69.0.2
 sqlparse==0.4.4
 tzdata==2023.3
 uritemplate==4.1.1
