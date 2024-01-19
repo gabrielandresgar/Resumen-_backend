@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'coreapi',
+    'openai',
+    'tiktoken',
+    'pytube',
+    'moviepy',
     'api'
 ]
 
@@ -128,24 +132,21 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASES':(
+    'DEFAULT_PERMISSION_CLASES': (
         'rest_framework.permission.AllowAny'
-        #'rest_framework.authentication.BasicAuthentication'
+        # 'rest_framework.authentication.BasicAuthentication'
     ),
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
-AUTHENTICATION_BACKENDS = ['api.backends.EmailBackend']
-AUTH_USER_MODEL = 'api.Usuario'
-
-#CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 # settings.py
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_ALLOW = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2']
 
 CORS_ORIGIN_WHITELIST = [
     "http://10.0.2.2:8000",
+    "http://192.168.8.15:8000"
     # Otros orígenes permitidos si es necesario
 ]
-
-

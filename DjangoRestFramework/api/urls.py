@@ -3,16 +3,23 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'programmers', views.ProgrammerViewSet)
 router.register(r'usuarios', views.UsuariosViewSet)
 router.register(r'materias', views.MateriasViewSet)
 router.register(r'clases', views.ClasesViewSet)
+
 urlpatterns = [
+    path('', include(router.urls)),
     path(
-        '', include(router.urls)
+        'usuarios/login/',
+        views.UsuariosViewSet.as_view({'post': 'login'}), name='login'
     ),
     path(
-        'usuarios/login/', views.UsuariosViewSet.as_view({'post': 'login'}), name='login'
+        'whisper/resumen/',
+        views.SummaryViewSet.as_view({'post': 'summary'}), name='summary'
+    ),
+    path(
+        'whisper/transcripcion/',
+        views.TranscriptionViewSet.as_view({'post': 'transcription'}), name='transcription'
     ),
     path(
         'materias/materiasImpar/',

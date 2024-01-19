@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
+
 class UsuarioManager(BaseUserManager):
     def create_user(self, correo, contrasenia=None, **extra_fields):
         if not correo:
@@ -22,11 +23,12 @@ class UsuarioManager(BaseUserManager):
 
         return self.create_user(correo, contrasenia, **extra_fields)
 
+
 class Usuario(AbstractBaseUser):
     cedula = models.CharField(max_length=50)
     correo = models.EmailField(unique=True)
     tipoUsuario = models.CharField(max_length=1)
-    
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -37,11 +39,6 @@ class Usuario(AbstractBaseUser):
 
     def __str__(self):
         return self.correo
-class Programmer(models.Model):
-    fullname = models.CharField(max_length=100)
-    nickname = models.CharField(max_length=50)
-    age = models.PositiveSmallIntegerField()
-    is_active = models.BooleanField(default=True)
 
 
 class Materia(models.Model):
@@ -56,5 +53,3 @@ class Clase(models.Model):
     descripcion = models.CharField(max_length=100)
     id_video = models.CharField(max_length=100)
     semestre = models.PositiveSmallIntegerField()
-
-    
