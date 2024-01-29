@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from .models import (Clase, Materia, Usuario)
+from .models import (Clase, Materia, Usuario, Transcripcion, Resumen)
 
-#  Los serializadores permiten convertir datos complejos como las instancias de modelo de Django y consultas
-#  de conjuntos de datos en tipos de datos nativos de Python que luego pueden ser fácilmente renderizados en JSON o XML
+
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
@@ -18,4 +17,16 @@ class MateriaSerializer(serializers.ModelSerializer):
 class ClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clase
+        fields = '__all__'
+
+
+class TranscripcionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transcripcion
+        fields = '__all__'
+
+
+class ResumenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resumen
         fields = '__all__'

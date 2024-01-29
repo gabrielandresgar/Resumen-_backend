@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from .serializer import (
-    ClaseSerializer, MateriaSerializer, UsuarioSerializer)
-from .models import (Clase, Materia, Usuario)
+    ClaseSerializer, MateriaSerializer, UsuarioSerializer, TranscripcionSerializer, ResumenSerializer)
+from .models import (Clase, Materia, Usuario, Transcripcion, Resumen)
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from openai import OpenAI
@@ -11,9 +11,9 @@ from pytube import YouTube
 import os
 # Create your views here.
 
-client = OpenAI( 
+client = OpenAI(
     # this is also the default, it can be omitted
-    api_key="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", #api de la cuenta utilizada
+    api_key="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",
 )
 
 
@@ -26,7 +26,7 @@ audio_path = os.path.abspath("audio.mp3")
 def extraer_audio(video_path, audio_path):
     video_clip = VideoFileClip(video_path)
 
-    audio_clip = video_clip.audio #extraccion del audio 
+    audio_clip = video_clip.audio
 
     audio_clip.write_audiofile(audio_path, codec='mp3', bitrate='16k')
 
@@ -56,30 +56,28 @@ class UsuariosViewSet(viewsets.ModelViewSet):
 
 
 class TranscriptionViewSet(viewsets.ViewSet):
-    @action(detail=False, methods=['post']) #llamada al id del video
+    @action(detail=False, methods=['post'])
     def transcription(self, request):
         try:
             id_video = request.data.get('id_video')
             language = request.data.get('language')
             try:
-                url = 'https://www.youtube.com/watch?v='+id_video #concatenamos 
+                url = 'https://www.youtube.com/watch?v='+id_video
                 youtube = YouTube(url)
                 video = youtube.streams.get_lowest_resolution()
-                video.download(filename="video.mp4") #descargamos el video
+                video.download(filename="video.mp4")
                 extraer_audio(video_path, audio_path)
-                # audio_file = open("C:/Users/estar/OneDrive/Escritorio/proyectos/DjangoRestFrameworkPriv/audio.mp3", "rb")
-                # audio_file = open("audio.mp3", "rb") 
-                result = client.audio.transcriptions.create( 
-                    model="whisper-1", #cargamos el modelo
-                    file=open("audio.mp3", "rb") #rb es para leer el audio
-                )#peticion a la api de whisper
-                
-                # audio_file.close()
+
+                # Utiliza el bloque with para asegurarte de que el archivo se cierre
+                with open(audio_path, "rb") as audio_file:
+                    result = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file
+                    )
 
                 texto_transcrito = result.text
-                prompt = f""" Translate the following text to {language}, ensuring that the translation
-                 accurately conveys the original meaning. Pay attention to nuances and context, and provide a 
-                 clear and coherent {language} rendition of the content. """
+                prompt = f""" Translate the following text to {
+                    language}, ensuring that the translation accurately conveys the original meaning. Pay attention to nuances and context, and provide a clear and coherent {language} rendition of the content. """
                 request = prompt + texto_transcrito
                 modelTokens = ''
                 enc = tiktoken.encoding_for_model('gpt-3.5-turbo')
@@ -95,7 +93,7 @@ class TranscriptionViewSet(viewsets.ViewSet):
                         }
                     ],
                     model=modelTokens,
-                    stream=True, # respuesta generada palabra tras palabra
+                    stream=True,
                 )
                 response = ''
                 for chunk in chat_completion:
@@ -128,9 +126,48 @@ class SummaryViewSet(viewsets.ViewSet):
             message = request.data.get('message')
             language = request.data.get('language')
             try:
-                prompt = f""" Utilizing your summarization skills, distill key insights and main points from the following
-                  text into a concise yet comprehensive summary. Focus on capturing essential ideas while minimizing
-                  unnecessary details. You must translate the summary into {language}. """
+                prompt = f""" Utilizing your summarization skills, distill key insights and main points from the following text into a concise yet comprehensive summary. Focus on capturing essential ideas while minimizing unnecessary details. You must translate the summary into {
+                    language}. """
+                request = prompt + message
+                modelTokens = ''
+                enc = tiktoken.encoding_for_model('gpt-3.5-turbo')
+                if len(enc.encode(request)) < 4097:
+                    modelTokens = 'gpt-3.5-turbo'
+                else:
+                    modelTokens = 'gpt-3.5-turbo-16k'
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": request,
+                        }
+                    ],
+                    model=modelTokens,
+                    stream=True,
+                )
+                response = ''
+                for chunk in chat_completion:
+                    if chunk.choices[0].delta.content is not None:
+                        response += chunk.choices[0].delta.content
+                datos_resumen = {
+                    "message": response
+                }
+                return Response(datos_resumen)
+            except:
+                return Response({'mensaje': 'Problemas al generar resumen'}, status=500)
+        except KeyError:
+            return Response({'mensaje': 'Parámetros incorrectos'}, status=400)
+
+
+class TranslateViewSet(viewsets.ViewSet):
+    @action(detail=False, methods=['post'])
+    def translate(self, request):
+        try:
+            message = request.data.get('message')
+            language = request.data.get('language')
+            try:
+                prompt = f""" Translate the following text to {
+                    language}, ensuring that the translation accurately conveys the original meaning. Pay attention to nuances and context, and provide a clear and coherent {language} rendition of the content. """
                 request = prompt + message
                 modelTokens = ''
                 enc = tiktoken.encoding_for_model('gpt-3.5-turbo')
@@ -207,5 +244,45 @@ class ClasesViewSet(viewsets.ModelViewSet):
             except Clase.DoesNotExist:
                 return Response({'mensaje': 'Clases no encontradas'}, status=404)
 
+        except KeyError:
+            return Response({'mensaje': 'Parámetros incorrectos'}, status=400)
+
+
+class TranscripcionesViewSet(viewsets.ModelViewSet):
+    queryset = Transcripcion.objects.all()
+    serializer_class = TranscripcionSerializer
+
+    @action(detail=False, methods=['post'])
+    def TranscripcionExistente(self, request):
+        try:
+            id_clase = request.data.get('id_clase')
+            language = request.data.get('language')
+            try:
+                transcripcion = Transcripcion.objects.get(
+                    id_clase=id_clase, language=language)
+                serializer = TranscripcionSerializer(transcripcion)
+                return Response(serializer.data)
+            except Transcripcion.DoesNotExist:
+                return Response({'mensaje': 'Transcripcion no encontrada'}, status=404)
+        except KeyError:
+            return Response({'mensaje': 'Parámetros incorrectos'}, status=400)
+
+
+class ResumenesViewSet(viewsets.ModelViewSet):
+    queryset = Resumen.objects.all()
+    serializer_class = ResumenSerializer
+
+    @action(detail=False, methods=['post'])
+    def ResumenExistente(self, request):
+        try:
+            id_clase = request.data.get('id_clase')
+            language = request.data.get('language')
+            try:
+                resumen = Resumen.objects.get(
+                    id_clase=id_clase, language=language)
+                serializer = ResumenSerializer(resumen)
+                return Response(serializer.data)
+            except Resumen.DoesNotExist:
+                return Response({'mensaje': 'Resumen no encontrado'}, status=404)
         except KeyError:
             return Response({'mensaje': 'Parámetros incorrectos'}, status=400)

@@ -6,6 +6,8 @@ router = routers.DefaultRouter()
 router.register(r'usuarios', views.UsuariosViewSet)
 router.register(r'materias', views.MateriasViewSet)
 router.register(r'clases', views.ClasesViewSet)
+router.register(r'transcripciones', views.TranscripcionesViewSet)
+router.register(r'resumenes', views.ResumenesViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -28,5 +30,17 @@ urlpatterns = [
     path(
         'clases/clasesImpar/',
         views.ClasesViewSet.as_view({'post': 'clasesImpar'}), name='clasesImpar'
+    ),
+    path(
+        'transcripcionesExistente/',
+        views.TranscripcionesViewSet.as_view({'post': 'TranscripcionExistente'}), name='TranscripcionExistente'
+    ),
+    path(
+        'resumenesExistente/',
+        views.ResumenesViewSet.as_view({'post': 'ResumenExistente'}), name='ResumenExistente'
+    ),
+    path(
+        'traducir/',
+        views.TranslateViewSet.as_view({'post': 'translate'}), name='translate'
     ),
 ]

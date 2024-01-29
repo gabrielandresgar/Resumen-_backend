@@ -9,7 +9,6 @@ __pycache__/
 
 # Django
 *.log
-db.sqlite3
 
 # API
 api/__pycache__/

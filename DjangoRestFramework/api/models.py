@@ -50,6 +50,17 @@ class Materia(models.Model):
 class Clase(models.Model):
     id_materia = models.PositiveSmallIntegerField()
     nombre = models.CharField(max_length=50)
-    descripcion = models.CharField(max_length=100)
+    descripcion = models.TextField()
     id_video = models.CharField(max_length=100)
     semestre = models.PositiveSmallIntegerField()
+
+
+class Transcripcion(models.Model):
+    id_clase = models.PositiveSmallIntegerField()
+    language = models.CharField(max_length=50)
+    Message = models.TextField()
+
+class Resumen(models.Model):
+    id_clase = models.PositiveSmallIntegerField()
+    language = models.CharField(max_length=50)
+    Message = models.TextField()
