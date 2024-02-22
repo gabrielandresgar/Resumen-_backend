@@ -10,10 +10,9 @@ from moviepy.editor import VideoFileClip
 from pytube import YouTube
 import os
 # Create your views here.
-
 client = OpenAI(
     # this is also the default, it can be omitted
-    api_key="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",
+    api_key="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",
 )
 
 
@@ -213,7 +212,7 @@ class MateriasViewSet(viewsets.ModelViewSet):
                 semestre = 9
             try:
                 if docente:
-                    materias = Materia.objects.filter(is_docente=True)
+                    materias = Materia.objects.all()
                     serializer = MateriaSerializer(materias, many=True)
                     return Response(serializer.data)
                 materias = Materia.objects.filter(semestre=semestre)
@@ -235,15 +234,33 @@ class ClasesViewSet(viewsets.ModelViewSet):
         try:
             semestre = 10
             ci = request.data.get('ci')
+            docente = request.data.get('docente')
             if ci % 2 == 0:
                 semestre = 9
             try:
+                if docente:
+                    clases = Clase.objects.all()
+                    serializer = ClaseSerializer(clases, many=True)
+                    return Response(serializer.data)
                 clases = Clase.objects.filter(semestre=semestre)
                 serializer = ClaseSerializer(clases, many=True)
                 return Response(serializer.data)
             except Clase.DoesNotExist:
                 return Response({'mensaje': 'Clases no encontradas'}, status=404)
 
+        except KeyError:
+            return Response({'mensaje': 'Parámetros incorrectos'}, status=400)
+    
+    @action(detail=False, methods=['post'])
+    def clasesMateria(self, request):
+        try:
+            id_materia = request.data.get('id_materia')
+            try:
+                clases = Clase.objects.filter(id_materia=id_materia)
+                serializer = ClaseSerializer(clases, many=True)
+                return Response(serializer.data)
+            except Clase.DoesNotExist:
+                return Response({'mensaje': 'Clases no encontradas'}, status=404)
         except KeyError:
             return Response({'mensaje': 'Parámetros incorrectos'}, status=400)
 

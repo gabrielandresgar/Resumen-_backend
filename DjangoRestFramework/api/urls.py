@@ -32,6 +32,10 @@ urlpatterns = [
         views.ClasesViewSet.as_view({'post': 'clasesImpar'}), name='clasesImpar'
     ),
     path(
+        'clases/clasesMateria/',
+        views.ClasesViewSet.as_view({'post': 'clasesMateria'}), name='clasesMateria'
+    ),
+    path(
         'transcripcionesExistente/',
         views.TranscripcionesViewSet.as_view({'post': 'TranscripcionExistente'}), name='TranscripcionExistente'
     ),
